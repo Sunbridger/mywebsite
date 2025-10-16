@@ -6,6 +6,6 @@ export default defineConfig({
   plugins: [react()],
   base: './',  // 替换为你的实际仓库名
   build: {
-    outDir: 'docs'
+    outDir: 'dist'
   }
 })
