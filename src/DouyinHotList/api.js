@@ -49,7 +49,7 @@ export const triggerGitHubAction = async (inputs = {}) => {
   const WORKFLOW_ID = 'update-data-byapi.yml'; // 工作流文件名
 
   const octokit = new Octokit({
-    auth: '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',
+    auth: process.env.GITHUBTOKEN,
   });
 
   await octokit.request(
