@@ -144,7 +144,9 @@ const HotList = () => {
   };
 
   useEffect(() => {
-    fetchData();
+    if (platform) {
+      fetchData();
+    }
   }, [platform]);
 
   return (

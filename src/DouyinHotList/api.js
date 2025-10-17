@@ -59,12 +59,14 @@ export const triggerGitHubAction = async (inputs = {}) => {
       },
       {
         headers: {
-          Authorization: `token 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`,
-          Accept: 'application/vnd.github.v3+json',
-          'Content-Type': 'application/json',
+          Authorization: `Bearer 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`,
+          Accept: 'application/vnd.github+json',
+          'X-GitHub-Api-Version': '2022-11-28',
         },
       }
     );
+
+    console.log(response, '-response');
 
     if (response.status === 204) {
       return { success: true, message: '工作流触发成功' };
