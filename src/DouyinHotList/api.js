@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { Octokit } from '@octokit/core';
 import dayjs from 'dayjs';
 
 const getBaseUrl = (platform) =>
@@ -47,34 +48,55 @@ export const triggerGitHubAction = async (inputs = {}) => {
   const REPO_NAME = 'screenshot'; // 替换为您的仓库名
   const WORKFLOW_ID = 'update-data-byapi.yml'; // 工作流文件名
 
-  try {
-    const response = await axios.post(
-      `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/actions/workflows/${WORKFLOW_ID}/dispatches`,
-      {
-        ref: 'main', // 或你的分支名
-        inputs: {
-          triggered_by: 'web_interface',
-          target_date: inputs?.target_date || '',
-        },
+  const octokit = new Octokit({
+    auth: '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',
+  });
+
+  await octokit.request(
+    'POST /repos/{owner}/{repo}/actions/workflows/{workflow_id}/dispatches',
+    {
+      owner: REPO_OWNER,
+      repo: REPO_NAME,
+      workflow_id: WORKFLOW_ID,
+      ref: 'main',
+      inputs: {
+        triggered_by: 'web_interface',
+        target_date: inputs?.target_date || '',
       },
-      {
-        headers: {
-          Authorization: `Bearer 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`,
-          Accept: 'application/vnd.github+json',
-          'X-GitHub-Api-Version': '2022-11-28',
-        },
-      }
-    );
-
-    console.log(response, '-response');
-
-    if (response.status === 204) {
-      return { success: true, message: '工作流触发成功' };
-    } else {
-      const errorData = await response.json();
-      throw new Error(errorData.message || `HTTP ${response.status}`);
+      headers: {
+        'X-GitHub-Api-Version': '2022-11-28',
+      },
     }
-  } catch (error) {
-    throw new Error(`触发失败: ${error.message}`);
-  }
+  );
+
+  // try {
+  //   const response = await axios.post(
+  //     `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/actions/workflows/${WORKFLOW_ID}/dispatches`,
+  //     {
+  //       ref: 'main', // 或你的分支名
+  //       inputs: {
+  //         triggered_by: 'web_interface',
+  //         target_date: inputs?.target_date || '',
+  //       },
+  //     },
+  //     {
+  //       headers: {
+  //         Authorization: `Bearer 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`,
+  //         Accept: 'application/vnd.github+json',
+  //         'X-GitHub-Api-Version': '2022-11-28',
+  //       },
+  //     }
+  //   );
+
+  //   console.log(response, '-response');
+
+  //   if (response.status === 204) {
+  //     return { success: true, message: '工作流触发成功' };
+  //   } else {
+  //     const errorData = await response.json();
+  //     throw new Error(errorData.message || `HTTP ${response.status}`);
+  //   }
+  // } catch (error) {
+  //   throw new Error(`触发失败: ${error.message}`);
+  // }
 };
