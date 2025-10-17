@@ -40,6 +40,10 @@ const HotListTable = ({ data, loading }) => {
           >
             {title}
           </a>
+          <Text>
+            {record.desc}
+          </Text>
+
           <Text type="secondary" style={{ fontSize: '12px' }}>
             数据日期: {record.dataDate} | ID: {record.id}
           </Text>
