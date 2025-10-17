@@ -1,16 +1,15 @@
 import axios from 'axios';
 import dayjs from 'dayjs';
 
-const BASE_URL =
-  'https://raw.githubusercontent.com/Sunbridger/screenshot/refs/heads/main/data-douyin';
+const getBaseUrl = (platform) => `https://raw.githubusercontent.com/Sunbridger/screenshot/refs/heads/main/data-${platform}`;
 
-export const fetchHotListData = async (date) => {
-  const url = `${BASE_URL}/${date}.json`;
+export const fetchHotListData = async (date, platform) => {
+  const url = `${getBaseUrl(platform)}/${date}.json`;
   const response = await axios.get(url);
   return response.data;
 };
 
-export const fetchDateRangeData = async (dateRange) => {
+export const fetchDateRangeData = async (dateRange, platform) => {
   const [startDate, endDate] = dateRange;
   const start = dayjs(startDate);
   const end = dayjs(endDate);
@@ -22,7 +21,7 @@ export const fetchDateRangeData = async (dateRange) => {
     const dateStr = currentDate.format('YYYY-MM-DD');
 
     try {
-      const data = await fetchHotListData(dateStr);
+      const data = await fetchHotListData(dateStr, platform);
       if (data && data.length > 0) {
         const datedData = data.map((item) => ({
           ...item,

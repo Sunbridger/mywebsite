@@ -1,5 +1,13 @@
 import { useState, useEffect } from 'react';
-import { Card, Alert, Typography, Button, Divider, message } from 'antd';
+import {
+  Card,
+  Alert,
+  Typography,
+  Button,
+  Divider,
+  message,
+  Select,
+} from 'antd';
 import { FireOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import { fetchHotListData, fetchDateRangeData } from './api';
@@ -8,8 +16,9 @@ import StatsPanel from './components/StatsPanel';
 import HotListTable from './components/HotListTable';
 
 const { Title, Text } = Typography;
+const { Option } = Select;
 
-const DouyinHotList = () => {
+const HotList = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -18,6 +27,7 @@ const DouyinHotList = () => {
   );
   const [dateRange, setDateRange] = useState(null);
   const [tableKey, setTableKey] = useState(0);
+  const [platform, setPlatform] = useState('douyin'); // 默认展示抖音数据
 
   // 获取单日数据
   const fetchData = async (date = selectedDate) => {
@@ -25,7 +35,7 @@ const DouyinHotList = () => {
     setError(null);
 
     try {
-      const response = await fetchHotListData(date);
+      const response = await fetchHotListData(date, platform);
 
       if (response && response.length > 0) {
         const datedData = response.map((item) => ({
@@ -37,17 +47,19 @@ const DouyinHotList = () => {
         setData(datedData);
         setSelectedDate(date);
         setTableKey((prev) => prev + 1);
-        message.success(`成功加载 ${date} 的数据 (${response.length} 条)`);
+        message.success(
+          `成功加载 ${date} 的${getPlatformName()}数据 (${response.length} 条)`
+        );
       } else {
         setData([]);
-        message.info(`${date} 没有数据`);
+        message.info(`${date} 没有${getPlatformName()}数据`);
       }
     } catch (error) {
       if (error.response && error.response.status === 404) {
         setData([]);
-        message.error(`${date} 数据文件不存在`);
+        message.error(`${date} ${getPlatformName()}数据文件不存在`);
       } else {
-        setError('获取数据失败: ' + error.message);
+        setError(`获取${getPlatformName()}数据失败: ` + error.message);
         console.error('Fetch error:', error);
       }
     } finally {
@@ -56,7 +68,6 @@ const DouyinHotList = () => {
   };
 
   // 获取日期范围数据
-
   const fetchRangeData = async () => {
     if (!dateRange || dateRange.length !== 2) return;
 
@@ -64,7 +75,7 @@ const DouyinHotList = () => {
     setError(null);
 
     try {
-      const allData = await fetchDateRangeData(dateRange);
+      const allData = await fetchDateRangeData(dateRange, platform);
 
       // 对数据进行排序：按日期降序，然后按热度降序
       const sortedData = allData.sort((a, b) => {
@@ -78,13 +89,15 @@ const DouyinHotList = () => {
 
       if (sortedData.length > 0) {
         message.success(
-          `成功加载 ${dateRange[0]} 到 ${dateRange[1]} 的数据 (${sortedData.length} 条)`
+          `成功加载 ${dateRange[0]} 到 ${
+            dateRange[1]
+          } 的${getPlatformName()}数据 (${sortedData.length} 条)`
         );
       } else {
         message.info('指定日期范围内没有数据');
       }
     } catch (error) {
-      setError('获取范围数据失败: ' + error.message);
+      setError(`获取${getPlatformName()}范围数据失败: ` + error.message);
     } finally {
       setLoading(false);
     }
@@ -105,9 +118,19 @@ const DouyinHotList = () => {
     }
   };
 
+  // 平台变化处理
+  const handlePlatformChange = (value) => {
+    setPlatform(value);
+  };
+
+  // 获取平台名称
+  const getPlatformName = () => {
+    return platform === 'douyin' ? '抖音' : '百度';
+  };
+
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [platform]);
 
   return (
     <div>
@@ -120,11 +143,29 @@ const DouyinHotList = () => {
       >
         {/* 标题区域 */}
         <div style={{ marginBottom: '24px' }}>
-          <Title level={3} style={{ marginBottom: '8px' }}>
-            <FireOutlined style={{ color: '#ff4d4f', marginRight: '8px' }} />
-            抖音热榜数据查询
-          </Title>
-          <Text type="secondary">选择日期查看对应日期的抖音热榜数据</Text>
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+            }}
+          >
+            <Title level={3} style={{ marginBottom: '8px' }}>
+              <FireOutlined style={{ color: '#ff4d4f', marginRight: '8px' }} />
+              {getPlatformName()}热榜数据查询
+            </Title>
+            <Select
+              defaultValue="douyin"
+              style={{ width: 120 }}
+              onChange={handlePlatformChange}
+            >
+              <Option value="douyin">抖音热榜</Option>
+              <Option value="baidu">百度热榜</Option>
+            </Select>
+          </div>
+          <Text type="secondary">
+            选择日期查看对应日期的{getPlatformName()}热榜数据
+          </Text>
         </div>
 
         {/* 控制面板 */}
@@ -139,7 +180,11 @@ const DouyinHotList = () => {
         />
 
         {/* 统计信息 */}
-        <StatsPanel data={data} selectedDate={selectedDate} />
+        <StatsPanel
+          data={data}
+          selectedDate={selectedDate}
+          platform={platform}
+        />
 
         {/* 错误提示 */}
         {error && (
@@ -160,10 +205,15 @@ const DouyinHotList = () => {
         <Divider />
 
         {/* 数据表格 */}
-        <HotListTable data={data} loading={loading} key={tableKey} />
+        <HotListTable
+          data={data}
+          loading={loading}
+          key={tableKey}
+          platform={platform}
+        />
       </Card>
     </div>
   );
 };
 
-export default DouyinHotList;
+export default HotList;
