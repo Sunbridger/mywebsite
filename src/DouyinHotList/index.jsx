@@ -7,10 +7,15 @@ import {
   Divider,
   message,
   Select,
+  Space,
 } from 'antd';
-import { FireOutlined } from '@ant-design/icons';
+import { SyncOutlined, FireOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
-import { fetchHotListData, fetchDateRangeData } from './api';
+import {
+  fetchHotListData,
+  fetchDateRangeData,
+  triggerGitHubAction,
+} from './api';
 import ControlPanel from './components/ControlPanel';
 import StatsPanel from './components/StatsPanel';
 import HotListTable from './components/HotListTable';
@@ -19,6 +24,7 @@ const { Title, Text } = Typography;
 const { Option } = Select;
 
 const HotList = () => {
+  const [messageApi, contextHolder] = message.useMessage();
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -128,6 +134,15 @@ const HotList = () => {
     return platform === 'douyin' ? '抖音' : '百度';
   };
 
+  const refreshTodayData = async () => {
+    messageApi.open({
+      type: 'success',
+      content: `后台任务已开启，请等待1分钟后重新查询${getPlatformName()}今日数据`,
+    });
+
+    await triggerGitHubAction();
+  };
+
   useEffect(() => {
     fetchData();
   }, [platform]);
@@ -154,14 +169,26 @@ const HotList = () => {
               <FireOutlined style={{ color: '#ff4d4f', marginRight: '8px' }} />
               {getPlatformName()}热榜数据查询
             </Title>
-            <Select
-              defaultValue="douyin"
-              style={{ width: 120 }}
-              onChange={handlePlatformChange}
-            >
-              <Option value="douyin">抖音热榜</Option>
-              <Option value="baidu">百度热榜</Option>
-            </Select>
+
+            <Space>
+              <Button
+                type="primary"
+                icon={<SyncOutlined />}
+                onClick={refreshTodayData}
+                loading={loading}
+              >
+                刷新今日数据
+              </Button>
+
+              <Select
+                defaultValue="douyin"
+                style={{ width: 120 }}
+                onChange={handlePlatformChange}
+              >
+                <Option value="douyin">抖音热榜</Option>
+                <Option value="baidu">百度热榜</Option>
+              </Select>
+            </Space>
           </div>
           <Text type="secondary">
             选择日期查看对应日期的{getPlatformName()}热榜数据
@@ -212,6 +239,9 @@ const HotList = () => {
           platform={platform}
         />
       </Card>
+
+      {/* message 占位 */}
+      {contextHolder}
     </div>
   );
 };

@@ -1,5 +1,9 @@
 import { Row, Card, Col, Space, Button, DatePicker, Typography } from 'antd';
-import { CalendarOutlined, ReloadOutlined } from '@ant-design/icons';
+import {
+  PlayCircleOutlined,
+  CalendarOutlined,
+  ReloadOutlined,
+} from '@ant-design/icons';
 import { QUICK_DATE_BUTTONS } from '../utils';
 import dayjs from 'dayjs';
 
