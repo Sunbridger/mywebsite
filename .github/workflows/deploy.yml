@@ -20,6 +20,8 @@ jobs:
         run: npm ci # 使用 npm ci 代替 npm install，更快速更稳定
 
       - run: npm run build
+        env:
+          VITE_API_TOKEN: ${{ secrets.VITE_API_TOKEN }}
 
       - uses: peaceiris/actions-gh-pages@v3
         with:
