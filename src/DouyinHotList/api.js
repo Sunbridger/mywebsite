@@ -48,23 +48,21 @@ export const triggerGitHubAction = async (inputs = {}) => {
   const WORKFLOW_ID = 'update-data-byapi.yml'; // 工作流文件名
 
   try {
-    const response = await axios(
+    const response = await axios.post(
       `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/actions/workflows/${WORKFLOW_ID}/dispatches`,
       {
-        method: 'POST',
+        ref: 'main', // 或你的分支名
+        inputs: {
+          triggered_by: 'web_interface',
+          target_date: inputs?.target_date || '',
+        },
+      },
+      {
         headers: {
           Authorization: `token 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`,
           Accept: 'application/vnd.github.v3+json',
           'Content-Type': 'application/json',
-          'X-GitHub-Api-Version': '2022-11-28',
         },
-        body: JSON.stringify({
-          ref: 'main', // 触发分支
-          inputs: {
-            triggered_by: 'web_interface',
-            target_date: inputs?.target_date || '',
-          },
-        }),
       }
     );
 
