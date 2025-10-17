@@ -19,6 +19,8 @@ jobs:
       - name: Install dependencies
         run: npm ci # 使用 npm ci 代替 npm install，更快速更稳定
 
+
+      - name: 构建打包
         run: |
           export GITHUB_TOKEN=$GITHUBTOKEN
           npm run build
