@@ -53,8 +53,7 @@ export const triggerGitHubAction = async (inputs = {}) => {
       {
         method: 'POST',
         headers: {
-          // eslint-disable-next-line no-undef
-          Authorization: `token ${__API_TOKEN__}`,
+          Authorization: `token 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`,
           Accept: 'application/vnd.github.v3+json',
           'Content-Type': 'application/json',
           'X-GitHub-Api-Version': '2022-11-28',
