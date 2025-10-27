@@ -33,7 +33,7 @@ const HotList = () => {
   );
   const [dateRange, setDateRange] = useState(null);
   const [tableKey, setTableKey] = useState(0);
-  const [platform, setPlatform] = useState('douyin'); // 默认展示抖音数据
+  const [platform, setPlatform] = useState('baidu'); // 默认展示百度数据
 
   // 获取单日数据
   const fetchData = async (date = selectedDate) => {
@@ -183,7 +183,7 @@ const HotList = () => {
               </Button>
 
               <Select
-                defaultValue="douyin"
+                defaultValue="baidu"
                 style={{ width: 120 }}
                 onChange={handlePlatformChange}
               >
