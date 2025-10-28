@@ -8,8 +8,17 @@ import {
   message,
   Select,
   Space,
+  Tag,
+  Tooltip,
+  Empty,
 } from 'antd';
-import { SyncOutlined, FireOutlined } from '@ant-design/icons';
+import { 
+  SyncOutlined, 
+  FireOutlined, 
+  InfoCircleOutlined,
+  ReloadOutlined,
+  CalendarOutlined
+} from '@ant-design/icons';
 import dayjs from 'dayjs';
 import {
   fetchHotListData,
@@ -53,20 +62,31 @@ const HotList = () => {
         setData(datedData);
         setSelectedDate(date);
         setTableKey((prev) => prev + 1);
-        message.success(
-          `成功加载 ${date} 的${getPlatformName()}数据 (${response.length} 条)`
-        );
+        messageApi.success({
+          content: `成功加载 ${date} 的${getPlatformName()}数据 (${response.length} 条)`,
+          icon: <FireOutlined style={{ color: '#ff4d4f' }} />,
+        });
       } else {
         setData([]);
-        message.info(`${date} 没有${getPlatformName()}数据`);
+        messageApi.info({
+          content: `${date} 没有${getPlatformName()}数据`,
+          icon: <InfoCircleOutlined />,
+        });
       }
     } catch (error) {
       if (error.response && error.response.status === 404) {
         setData([]);
-        message.error(`${date} ${getPlatformName()}数据文件不存在`);
+        messageApi.error({
+          content: `${date} ${getPlatformName()}数据文件不存在`,
+          icon: <InfoCircleOutlined />,
+        });
       } else {
         setError(`获取${getPlatformName()}数据失败: ` + error.message);
         console.error('Fetch error:', error);
+        messageApi.error({
+          content: `获取${getPlatformName()}数据失败`,
+          icon: <InfoCircleOutlined />,
+        });
       }
     } finally {
       setLoading(false);
@@ -94,16 +114,24 @@ const HotList = () => {
       setTableKey((prev) => prev + 1);
 
       if (sortedData.length > 0) {
-        message.success(
-          `成功加载 ${dateRange[0]} 到 ${
+        messageApi.success({
+          content: `成功加载 ${dateRange[0]} 到 ${
             dateRange[1]
-          } 的${getPlatformName()}数据 (${sortedData.length} 条)`
-        );
+          } 的${getPlatformName()}数据 (${sortedData.length} 条)`,
+          icon: <FireOutlined style={{ color: '#ff4d4f' }} />,
+        });
       } else {
-        message.info('指定日期范围内没有数据');
+        messageApi.info({
+          content: '指定日期范围内没有数据',
+          icon: <InfoCircleOutlined />,
+        });
       }
     } catch (error) {
       setError(`获取${getPlatformName()}范围数据失败: ` + error.message);
+      messageApi.error({
+        content: `获取${getPlatformName()}范围数据失败`,
+        icon: <InfoCircleOutlined />,
+      });
     } finally {
       setLoading(false);
     }
@@ -134,13 +162,32 @@ const HotList = () => {
     return platform === 'douyin' ? '抖音' : '百度';
   };
 
+  // 获取平台图标
+  const getPlatformIcon = () => {
+    return platform === 'douyin' ? '🎵' : '🔍';
+  };
+
   const refreshTodayData = async () => {
     messageApi.open({
-      type: 'success',
-      content: `后台任务已开启，请等待1分钟后重新查询${getPlatformName()}今日数据`,
+      type: 'loading',
+      content: '正在启动后台任务...',
+      duration: 1,
     });
 
-    await triggerGitHubAction();
+    try {
+      await triggerGitHubAction();
+      setTimeout(() => {
+        messageApi.success({
+          content: `后台任务已开启，请等待1分钟后重新查询${getPlatformName()}今日数据`,
+          icon: <CalendarOutlined />,
+        });
+      }, 1000);
+    } catch (error) {
+      messageApi.error({
+        content: '启动后台任务失败，请稍后再试',
+        icon: <InfoCircleOutlined />,
+      });
+    }
   };
 
   useEffect(() => {
@@ -150,48 +197,53 @@ const HotList = () => {
   }, [platform]);
 
   return (
-    <div>
+    <div className="fade-in">
       <Card
         bordered={false}
-        style={{
-          boxShadow:
-            '0 1px 2px 0 rgba(0,0,0,0.03), 0 1px 6px -1px rgba(0,0,0,0.02), 0 2px 4px 0 rgba(0,0,0,0.02)',
-        }}
+        className="main-card"
       >
         {/* 标题区域 */}
-        <div style={{ marginBottom: '24px' }}>
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-            }}
-          >
-            <Title level={3} style={{ marginBottom: '8px' }}>
-              <FireOutlined style={{ color: '#ff4d4f', marginRight: '8px' }} />
+        <div className="page-header">
+          <div className="page-title">
+            <span className="platform-icon">{getPlatformIcon()}</span>
+            <Title level={3} style={{ margin: 0, display: 'flex', alignItems: 'center' }}>
               {getPlatformName()}热榜数据查询
             </Title>
+            <Tag color={platform === 'douyin' ? 'purple' : 'blue'}>
+              {platform === 'douyin' ? '抖音' : '百度'}
+            </Tag>
+          </div>
 
-            <Space>
+          <Space>
+            <Tooltip title="刷新今日数据">
               <Button
                 type="primary"
                 icon={<SyncOutlined />}
                 onClick={refreshTodayData}
                 loading={loading}
+                className="action-button"
               >
                 刷新今日数据
               </Button>
+            </Tooltip>
 
-              <Select
-                defaultValue="baidu"
-                style={{ width: 120 }}
-                onChange={handlePlatformChange}
-              >
-                <Option value="douyin">抖音热榜</Option>
-                <Option value="baidu">百度热榜</Option>
-              </Select>
-            </Space>
-          </div>
+            <Select
+              defaultValue="baidu"
+              style={{ width: 120 }}
+              onChange={handlePlatformChange}
+              className="platform-selector"
+            >
+              <Option value="douyin">
+                <span style={{ marginRight: 4 }}>🎵</span>抖音热榜
+              </Option>
+              <Option value="baidu">
+                <span style={{ marginRight: 4 }}>🔍</span>百度热榜
+              </Option>
+            </Select>
+          </Space>
+        </div>
+
+        <div className="page-description">
           <Text type="secondary">
             选择日期查看对应日期的{getPlatformName()}热榜数据
           </Text>
@@ -209,11 +261,13 @@ const HotList = () => {
         />
 
         {/* 统计信息 */}
-        <StatsPanel
-          data={data}
-          selectedDate={selectedDate}
-          platform={platform}
-        />
+        {data.length > 0 && (
+          <StatsPanel
+            data={data}
+            selectedDate={selectedDate}
+            platform={platform}
+          />
+        )}
 
         {/* 错误提示 */}
         {error && (
@@ -222,7 +276,7 @@ const HotList = () => {
             description={error}
             type="error"
             action={
-              <Button size="small" onClick={() => fetchData()}>
+              <Button size="small" icon={<ReloadOutlined />} onClick={() => fetchData()}>
                 重试
               </Button>
             }
@@ -233,13 +287,36 @@ const HotList = () => {
 
         <Divider />
 
-        {/* 数据表格 */}
-        <HotListTable
-          data={data}
-          loading={loading}
-          key={tableKey}
-          platform={platform}
-        />
+        {/* 数据表格或空状态 */}
+        {data.length > 0 ? (
+          <HotListTable
+            data={data}
+            loading={loading}
+            key={tableKey}
+            platform={platform}
+          />
+        ) : (
+          !loading && (
+            <Empty
+              image={Empty.PRESENTED_IMAGE_SIMPLE}
+              description={
+                <span>
+                  暂无{getPlatformName()}热榜数据
+                  <br />
+                  请尝试选择其他日期或刷新数据
+                </span>
+              }
+            >
+              <Button 
+                type="primary" 
+                icon={<ReloadOutlined />} 
+                onClick={() => fetchData()}
+              >
+                重新加载
+              </Button>
+            </Empty>
+          )
+        )}
       </Card>
 
       {/* message 占位 */}

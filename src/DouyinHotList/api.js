@@ -21,7 +21,6 @@ export const fetchDateRangeData = async (dateRange, platform) => {
   let currentDate = end;
   while (currentDate.isAfter(start) || currentDate.isSame(start)) {
     const dateStr = currentDate.format('YYYY-MM-DD');
-
     try {
       const data = await fetchHotListData(dateStr, platform);
       if (data && data.length > 0) {
