@@ -1,4 +1,4 @@
 {
   "Codegeex.Chat.fontSize": 13,
-  "Codegeex.CommitMessageStyle": "ConventionalCommits"
+  "Codegeex.CommitMessageStyle": "Auto"
 }
