@@ -12,12 +12,13 @@ import {
   Tooltip,
   Empty,
 } from 'antd';
-import { 
-  SyncOutlined, 
-  FireOutlined, 
+import {
+  SyncOutlined,
+  FireOutlined,
   InfoCircleOutlined,
   ReloadOutlined,
-  CalendarOutlined
+  CalendarOutlined,
+  BarChartOutlined
 } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import {
@@ -28,6 +29,7 @@ import {
 import ControlPanel from './components/ControlPanel';
 import StatsPanel from './components/StatsPanel';
 import HotListTable from './components/HotListTable';
+import AdvancedAnalysis from './components/AdvancedAnalysis';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -37,6 +39,7 @@ const HotList = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [showAnalysis, setShowAnalysis] = useState(false);
   const [selectedDate, setSelectedDate] = useState(
     dayjs().format('YYYY-MM-DD')
   );
@@ -171,6 +174,11 @@ const HotList = () => {
     return platform === 'douyin' ? '🎵' : '🔍';
   };
 
+  // 切换高级分析面板
+  const toggleAnalysis = () => {
+    setShowAnalysis(prev => !prev);
+  };
+
   const refreshTodayData = async () => {
     messageApi.open({
       type: 'loading',
@@ -234,6 +242,17 @@ const HotList = () => {
               </Button>
             </Tooltip>
 
+            <Tooltip title={showAnalysis ? '关闭分析面板' : '打开分析面板'}>
+              <Button
+                type={showAnalysis ? "primary" : "default"}
+                icon={<BarChartOutlined />}
+                onClick={toggleAnalysis}
+                className="action-button"
+              >
+                高级分析
+              </Button>
+            </Tooltip>
+
             <Select
               defaultValue="baidu"
               style={{ width: 120 }}
@@ -294,6 +313,16 @@ const HotList = () => {
 
         <Divider />
 
+        {/* 高级分析面板 */}
+        {showAnalysis && data.length > 0 && (
+          <AdvancedAnalysis
+            data={data}
+            loading={loading}
+          />
+        )}
+
+        <Divider />
+
         {/* 数据表格或空状态 */}
         {data.length > 0 ? (
           <HotListTable
@@ -314,9 +343,9 @@ const HotList = () => {
                 </span>
               }
             >
-              <Button 
-                type="primary" 
-                icon={<ReloadOutlined />} 
+              <Button
+                type="primary"
+                icon={<ReloadOutlined />}
                 onClick={() => fetchData()}
               >
                 重新加载
