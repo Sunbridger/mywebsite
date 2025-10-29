@@ -133,7 +133,7 @@ const StatsPanel = ({ data }) => {
       <Row gutter={[16, 16]} style={{ marginTop: 24 }}>
         <Col xs={24} sm={8}>
           <div style={{ marginBottom: 8 }}>
-            <span style={{ fontSize: 14, color: '#8c8c8c' }}>高热度 (>{Math.round(maxHot * 0.8)})</span>
+            <span style={{ fontSize: 14, color: '#8c8c8c' }}>高热度 ({'>'}{Math.round(maxHot * 0.8)})</span>
             <span style={{ float: 'right', fontSize: 14, color: '#8c8c8c' }}>{highHotCount}条 ({highHotPercent.toFixed(1)}%)</span>
           </div>
           <Progress

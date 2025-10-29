@@ -53,10 +53,12 @@ const HotList = () => {
       const response = await fetchHotListData(date, platform);
 
       if (response && response.length > 0) {
-        const datedData = response.map((item) => ({
+        // 在加载时为每条记录注入 rank，避免表格内重复查找
+        const datedData = response.map((item, idx) => ({
           ...item,
           dataDate: date,
           uniqueKey: `${date}-${item.id}`,
+          rank: idx + 1,
         }));
 
         setData(datedData);
@@ -73,16 +75,17 @@ const HotList = () => {
           icon: <InfoCircleOutlined />,
         });
       }
-    } catch (error) {
-      if (error.response && error.response.status === 404) {
+    } catch (err) {
+      // 处理 404 文件未找到情况
+      if (err.response && err.response.status === 404) {
         setData([]);
         messageApi.error({
           content: `${date} ${getPlatformName()}数据文件不存在`,
           icon: <InfoCircleOutlined />,
         });
       } else {
-        setError(`获取${getPlatformName()}数据失败: ` + error.message);
-        console.error('Fetch error:', error);
+        setError(`获取${getPlatformName()}数据失败: ` + err.message);
+        console.error('Fetch error:', err);
         messageApi.error({
           content: `获取${getPlatformName()}数据失败`,
           icon: <InfoCircleOutlined />,
@@ -109,8 +112,9 @@ const HotList = () => {
         if (dateCompare !== 0) return dateCompare;
         return b.hot - a.hot;
       });
-
-      setData(sortedData);
+      // 为合并后的数据注入全局 rank（按照当前排序）
+      const ranked = sortedData.map((item, idx) => ({ ...item, rank: idx + 1 }));
+      setData(ranked);
       setTableKey((prev) => prev + 1);
 
       if (sortedData.length > 0) {
@@ -182,7 +186,8 @@ const HotList = () => {
           icon: <CalendarOutlined />,
         });
       }, 1000);
-    } catch (error) {
+    } catch (err) {
+      console.error('triggerGitHubAction error:', err);
       messageApi.error({
         content: '启动后台任务失败，请稍后再试',
         icon: <InfoCircleOutlined />,
@@ -192,8 +197,10 @@ const HotList = () => {
 
   useEffect(() => {
     if (platform) {
+      // 安全调用，不把 fetchData 添加为依赖以避免重复注册
       fetchData();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [platform]);
 
   return (

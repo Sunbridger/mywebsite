@@ -47,8 +47,19 @@ export const triggerGitHubAction = async (inputs = {}) => {
   const REPO_NAME = 'screenshot'; // 替换为您的仓库名
   const WORKFLOW_ID = 'update-data-byapi.yml'; // 工作流文件名
 
+  // 支持常见的环境变量名，优先使用 GITHUB_PERSONAL_ACCESS_TOKEN
+  // 尝试从多种环境来源读取 token：优先 VITE_ 前缀（Vite 注入），其次 process.env（Node 环境）
+  const tokenFromProcess = typeof globalThis !== 'undefined' && globalThis['process'] && globalThis['process'].env
+    ? (globalThis['process'].env.GITHUB_PERSONAL_ACCESS_TOKEN || globalThis['process'].env.GITHUB_TOKEN)
+    : undefined;
+  const tokenFromVite = typeof import.meta !== 'undefined' && import.meta.env
+    ? (import.meta.env.VITE_GITHUB_PERSONAL_ACCESS_TOKEN || import.meta.env.VITE_GITHUB_TOKEN)
+    : undefined;
+
+  const authToken = tokenFromVite || tokenFromProcess;
+
   const octokit = new Octokit({
-    auth: process.env.GITHUBTOKEN,
+    auth: authToken,
   });
 
   await octokit.request(
@@ -67,35 +78,4 @@ export const triggerGitHubAction = async (inputs = {}) => {
       },
     }
   );
-
-  // try {
-  //   const response = await axios.post(
-  //     `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/actions/workflows/${WORKFLOW_ID}/dispatches`,
-  //     {
-  //       ref: 'main', // 或你的分支名
-  //       inputs: {
-  //         triggered_by: 'web_interface',
-  //         target_date: inputs?.target_date || '',
-  //       },
-  //     },
-  //     {
-  //       headers: {
-  //         Authorization: `Bearer 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`,
-  //         Accept: 'application/vnd.github+json',
-  //         'X-GitHub-Api-Version': '2022-11-28',
-  //       },
-  //     }
-  //   );
-
-  //   console.log(response, '-response');
-
-  //   if (response.status === 204) {
-  //     return { success: true, message: '工作流触发成功' };
-  //   } else {
-  //     const errorData = await response.json();
-  //     throw new Error(errorData.message || `HTTP ${response.status}`);
-  //   }
-  // } catch (error) {
-  //   throw new Error(`触发失败: ${error.message}`);
-  // }
 };

@@ -26,8 +26,8 @@ const HotListTable = ({ data, loading }) => {
       width: 80,
       fixed: 'left',
       render: (_, record, index) => {
-        // 计算全局序号
-        const globalIndex = data.findIndex(item => item.id === record.id);
+        // 优化：优先使用 record.rank（在数据加载处预计算），fallback 使用当前行索引
+        const globalIndex = typeof record.rank === 'number' ? record.rank - 1 : index;
 
         return (
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -123,7 +123,7 @@ const HotListTable = ({ data, loading }) => {
           position: ['bottomCenter'],
         }}
         scroll={{ x: 1000 }}
-        loading={false}
+        loading={loading}
         style={{ opacity: loading ? 0.7 : 1 }}
         size="middle"
         rowClassName={(record, index) => index < 3 ? 'top-rank-row' : ''}

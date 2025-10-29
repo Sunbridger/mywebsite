@@ -4,6 +4,11 @@ export const formatTime = (timestamp) => {
   return new Date(timestamp * 1000).toLocaleString('zh-CN');
 };
 
+/**
+ * 格式化热度数值，根据数值大小转换为"千万"或"万"为单位
+ * @param {number} hot - 需要格式化的热度数值
+ * @returns {string} 格式化后的热度字符串
+ */
 export const formatHot = (hot) => {
   if (hot >= 10000000) {
     return (hot / 10000000).toFixed(1) + '千万';
