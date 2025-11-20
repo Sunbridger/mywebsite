@@ -109,6 +109,10 @@ body {
   font-size: 14px !important;
 }
 
+.ant-select-dropdown .ant-select-item .anticon {
+  font-size: 12px !important;
+}
+
 /* 表格空状态样式 */
 .ant-empty {
   margin: 60px 0;
@@ -487,35 +491,35 @@ body {
   .hot-value {
     font-size: 14px;
   }
-
+  
   .xiaohongshu-header {
     padding: 16px;
   }
-
+  
   .xiaohongshu-card-header,
   .xiaohongshu-note-header {
     padding: 12px 16px;
   }
-
+  
   .xiaohongshu-card-body,
   .xiaohongshu-note-content {
     padding: 0 16px 16px;
   }
-
+  
   .xiaohongshu-note-stats {
     padding: 12px 16px;
   }
-
+  
   /* 禁用横向滚动 */
   .ant-table-wrapper {
     overflow-x: hidden;
   }
-
+  
   .ant-table {
     width: 100%;
     overflow-x: auto;
   }
-
+  
   .ant-table-tbody > tr > td,
   .ant-table-thead > tr > th {
     white-space: nowrap;
