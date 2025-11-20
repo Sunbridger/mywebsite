@@ -14,7 +14,7 @@ import { ContentAnalysis } from '../analysis/contentAnalysis';
 const { Text } = Typography;
 const { Option } = Select;
 
-const AdvancedAnalysis = ({ data, loading }) => {
+const AdvancedAnalysis = ({ data, loading, platform }) => {
   const [analysisResult, setAnalysisResult] = useState(null);
   const [keywordTrends, setKeywordTrends] = useState(null);
   const [selectedKeyword, setSelectedKeyword] = useState(null);
@@ -29,7 +29,7 @@ const AdvancedAnalysis = ({ data, loading }) => {
 
     setAnalysisResult({ trendAnalysis, prediction, peakPeriods });
     setKeywordTrends(keywordAnalysis);
-    
+
     // 默认选择第一个关键词
     if (keywordAnalysis.topKeywords.length > 0) {
       setSelectedKeyword(keywordAnalysis.topKeywords[0]);
@@ -56,7 +56,7 @@ const AdvancedAnalysis = ({ data, loading }) => {
       <GradientCard
         title={<><LineChartOutlined /> 热度趋势分析</>}
         loading={loading}
-        gradientColors={['#8EC5FC', '#E0C3FC']}
+        platform={platform}
       >
         <div style={{ height: 400 }}>
           <Line
@@ -67,7 +67,7 @@ const AdvancedAnalysis = ({ data, loading }) => {
             smooth={true}
             animation={false}
             point={{
-              size: 3,
+              size: 4,
             }}
             legend={{
               position: 'top'
@@ -79,7 +79,20 @@ const AdvancedAnalysis = ({ data, loading }) => {
                 formatter: (v) => v.split(' ')[0]
               },
             }}
-            yAxis={{}}
+            yAxis={{
+              title: {
+                text: '热度值',
+                style: {
+                  fontSize: 14
+                }
+              }
+            }}
+            lineStyle={({ type }) => {
+              if (type === '实际热度') {
+                return { lineWidth: 3, stroke: platform === 'douyin' ? '#ff0064' : '#3e7bff' };
+              }
+              return { lineWidth: 2, stroke: '#faad14', lineDash: [5, 5] };
+            }}
           />
         </div>
       </GradientCard>
@@ -93,7 +106,7 @@ const AdvancedAnalysis = ({ data, loading }) => {
       <GradientCard
         title={<><FireOutlined /> 热点话题</>}
         loading={loading}
-        gradientColors={['#FBAB7E', '#F7CE68']}
+        platform={platform}
       >
         <Table
           dataSource={analysisResult.peakPeriods}
@@ -102,6 +115,14 @@ const AdvancedAnalysis = ({ data, loading }) => {
               title: '日期',
               dataIndex: 'date',
               width: '25%',
+              render: (date) => (
+                <Text strong style={{
+                  color: platform === 'douyin' ? '#ff0064' : '#3e7bff',
+                  fontSize: '14px'
+                }}>
+                  {date}
+                </Text>
+              ),
             },
             {
               title: '话题',
@@ -114,14 +135,17 @@ const AdvancedAnalysis = ({ data, loading }) => {
               dataIndex: 'score',
               width: '25%',
               render: (score) => (
-                <Text strong style={{ color: '#ff4d4f' }}>
+                <Text strong style={{
+                  color: platform === 'douyin' ? '#ff0064' : '#3e7bff',
+                  fontSize: '16px'
+                }}>
                   {score}
                 </Text>
               ),
             },
           ]}
           pagination={{ pageSize: 5 }}
-          size="small"
+          size="middle"
         />
       </GradientCard>
     );
@@ -131,19 +155,20 @@ const AdvancedAnalysis = ({ data, loading }) => {
     if (!keywordTrends || !selectedKeyword) return null;
 
     const chartData = keywordTrends.trends[selectedKeyword].data;
-    
+
     return (
       <GradientCard
         title={<><BarChartOutlined /> 关键词趋势分析</>}
         loading={loading}
-        gradientColors={['#a8edea', '#fed6e3']}
+        platform={platform}
       >
         <div style={{ marginBottom: 16 }}>
-          <Text strong>选择关键词：</Text>
+          <Text strong style={{ fontSize: '16px' }}>选择关键词：</Text>
           <Select
             value={selectedKeyword}
             onChange={setSelectedKeyword}
             style={{ width: 200, marginLeft: 8 }}
+            size="large"
           >
             {keywordTrends.topKeywords.map(keyword => (
               <Option key={keyword} value={keyword}>{keyword}</Option>
@@ -158,9 +183,9 @@ const AdvancedAnalysis = ({ data, loading }) => {
             smooth={true}
             animation={false}
             point={{
-              size: 3,
+              size: 4,
             }}
-            color={'#5B8FF9'}
+            color={platform === 'douyin' ? '#ff0064' : '#3e7bff'}
             xAxis={{
               type: 'timeCat',
               label: {
@@ -170,9 +195,13 @@ const AdvancedAnalysis = ({ data, loading }) => {
             }}
             yAxis={{
               title: {
-                text: '出现次数'
+                text: '出现次数',
+                style: {
+                  fontSize: 14
+                }
               }
             }}
+            lineStyle={{ lineWidth: 3 }}
           />
         </div>
       </GradientCard>
@@ -185,7 +214,7 @@ const AdvancedAnalysis = ({ data, loading }) => {
     // 获取每个关键词在最近一天的出现次数
     const latestDate = keywordTrends.dates[keywordTrends.dates.length - 1];
     const latestCounts = {};
-    
+
     keywordTrends.topKeywords.forEach(keyword => {
       const trendData = keywordTrends.trends[keyword].data;
       const latestData = trendData.find(d => d.date === latestDate);
@@ -193,7 +222,7 @@ const AdvancedAnalysis = ({ data, loading }) => {
     });
 
     // 按最近一天的出现次数排序
-    const sortedKeywords = [...keywordTrends.topKeywords].sort((a, b) => 
+    const sortedKeywords = [...keywordTrends.topKeywords].sort((a, b) =>
       latestCounts[b] - latestCounts[a]
     );
 
@@ -206,7 +235,7 @@ const AdvancedAnalysis = ({ data, loading }) => {
       <GradientCard
         title={<><FireOutlined /> 热门关键词</>}
         loading={loading}
-        gradientColors={['#ffecd2', '#fcb69f']}
+        platform={platform}
       >
         <div style={{ height: 400 }}>
           <Column
@@ -214,12 +243,14 @@ const AdvancedAnalysis = ({ data, loading }) => {
             xField="keyword"
             yField="count"
             columnWidthRatio={0.6}
-            color={'#f27121'}
+            color={platform === 'douyin' ? '#ff0064' : '#3e7bff'}
             label={{
               position: 'middle',
               style: {
                 fill: '#FFFFFF',
                 opacity: 0.8,
+                fontWeight: 'bold',
+                fontSize: 14
               },
             }}
             meta={{
@@ -230,12 +261,18 @@ const AdvancedAnalysis = ({ data, loading }) => {
               label: {
                 autoRotate: false,
                 autoHide: true,
-                autoEllipsis: true
+                autoEllipsis: true,
+                style: {
+                  fontSize: 14
+                }
               }
             }}
             yAxis={{
               title: {
-                text: '出现次数'
+                text: '出现次数',
+                style: {
+                  fontSize: 14
+                }
               }
             }}
           />
@@ -245,8 +282,8 @@ const AdvancedAnalysis = ({ data, loading }) => {
   };
 
   return (
-    <div style={{ padding: '16px 0' }}>
-      <Space direction="vertical" size={16} style={{ width: '100%' }}>
+    <div style={{ padding: '16px 0' }} className={`platform-${platform}`}>
+      <Space direction="vertical" size={24} style={{ width: '100%' }}>
         {renderTrendChart()}
         {renderKeywordTrends()}
         {renderTopKeywords()}

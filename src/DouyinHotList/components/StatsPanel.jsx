@@ -7,7 +7,7 @@ import {
 } from '@ant-design/icons';
 import { formatHot } from '../utils';
 
-const StatsPanel = ({ data }) => {
+const StatsPanel = ({ data, platform }) => {
   if (!data || data.length === 0) return null;
 
   // 计算最高热度和平均热度
@@ -26,57 +26,158 @@ const StatsPanel = ({ data }) => {
 
   return (
     <Card
-      className="stats-panel"
+      className={`stats-panel platform-${platform}`}
       title={
-        <span>
-          <BarChartOutlined style={{ marginRight: 8, color: '#1890ff' }} />
-          数据统计
+        <span style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px'
+        }}>
+          <BarChartOutlined style={{
+            color: platform === 'douyin' ? '#ff0064' : '#3e7bff',
+            fontSize: '20px'
+          }} />
+          <span style={{
+            fontWeight: '600',
+            fontSize: '18px'
+          }}>
+            数据统计
+          </span>
         </span>
       }
+      style={{
+        borderLeft: `4px solid ${platform === 'douyin' ? '#ff0064' : '#3e7bff'}`,
+      }}
     >
       <Row gutter={[16, 24]}>
         <Col xs={24} sm={12} md={6}>
-          <Statistic
-            title="热点总数"
-            value={data.length}
-            prefix={<FireOutlined style={{ color: '#ff4d4f' }} />}
-            valueStyle={{ color: '#ff4d4f' }}
-          />
+          <div
+            className="gradient-card"
+            style={{
+              background: 'linear-gradient(135deg, #fff7e6 0%, #ffe7ba 100%)',
+              borderRadius: '16px',
+              padding: '20px',
+              height: '100%',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.08)'
+            }}
+          >
+            <Statistic
+              title={
+                <span style={{
+                  color: '#fa8c16',
+                  fontSize: '16px',
+                  fontWeight: '500'
+                }}>
+                  热点总数
+                </span>
+              }
+              value={data.length}
+              prefix={<FireOutlined style={{ color: '#fa8c16' }} />}
+              valueStyle={{
+                color: '#fa8c16',
+                fontSize: '32px',
+                fontWeight: 'bold'
+              }}
+            />
+          </div>
         </Col>
         <Col xs={24} sm={12} md={6}>
-          <Statistic
-            title="最高热度"
-            value={formatHot(maxHot)}
-            prefix={<ThunderboltOutlined style={{ color: '#faad14' }} />}
-            valueStyle={{ color: '#faad14' }}
-          />
+          <div
+            className="gradient-card"
+            style={{
+              background: 'linear-gradient(135deg, #fff1f0 0%, #ffccc7 100%)',
+              borderRadius: '16px',
+              padding: '20px',
+              height: '100%',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.08)'
+            }}
+          >
+            <Statistic
+              title={
+                <span style={{
+                  color: '#ff4d4f',
+                  fontSize: '16px',
+                  fontWeight: '500'
+                }}>
+                  最高热度
+                </span>
+              }
+              value={formatHot(maxHot)}
+              prefix={<ThunderboltOutlined style={{ color: '#ff4d4f' }} />}
+              valueStyle={{
+                color: '#ff4d4f',
+                fontSize: '32px',
+                fontWeight: 'bold'
+              }}
+            />
+          </div>
         </Col>
         <Col xs={24} sm={12} md={6}>
-          <Statistic
-            title="平均热度"
-            value={formatHot(avgHot)}
-            precision={1}
-            prefix={<BarChartOutlined style={{ color: '#1890ff' }} />}
-            valueStyle={{ color: '#1890ff' }}
-          />
+          <div
+            className="gradient-card"
+            style={{
+              background: 'linear-gradient(135deg, #e6f7ff 0%, #bae7ff 100%)',
+              borderRadius: '16px',
+              padding: '20px',
+              height: '100%',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.08)'
+            }}
+          >
+            <Statistic
+              title={
+                <span style={{
+                  color: '#1890ff',
+                  fontSize: '16px',
+                  fontWeight: '500'
+                }}>
+                  平均热度
+                </span>
+              }
+              value={formatHot(avgHot)}
+              precision={1}
+              prefix={<BarChartOutlined style={{ color: '#1890ff' }} />}
+              valueStyle={{
+                color: '#1890ff',
+                fontSize: '32px',
+                fontWeight: 'bold'
+              }}
+            />
+          </div>
         </Col>
         <Col xs={24} sm={12} md={6}>
           <div style={{
-            padding: '16px',
+            padding: '20px',
             background: 'linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%)',
-            borderRadius: '8px',
+            borderRadius: '16px',
             height: '100%',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.05)'
+            boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+            display: 'flex',
+            flexDirection: 'column'
           }}>
             <div style={{
               display: 'flex',
               alignItems: 'center',
-              marginBottom: '12px'
+              marginBottom: '16px'
             }}>
-              <TrophyOutlined style={{ color: '#722ed1', marginRight: '8px' }} />
-              <span style={{ fontSize: '14px', fontWeight: 'bold', color: '#595959' }}>热点TOP3</span>
+              <TrophyOutlined style={{
+                color: '#722ed1',
+                marginRight: '8px',
+                fontSize: '18px'
+              }} />
+              <span style={{
+                fontSize: '16px',
+                fontWeight: 'bold',
+                color: '#595959'
+              }}>
+                热点TOP3
+              </span>
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <div style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '12px',
+              flex: 1
+            }}>
               {data.slice(0, 3).map((item, index) => (
                 <Tooltip key={item.id} title={item.desc || '点击查看详情'}>
                   <a
@@ -88,14 +189,17 @@ const StatsPanel = ({ data }) => {
                       alignItems: 'center',
                       textDecoration: 'none',
                       color: '#262626',
-                      fontSize: '13px',
-                      padding: '6px 8px',
-                      borderRadius: '4px',
-                      background: index === 0 ? '#fff1f0' : index === 1 ? '#f6ffed' : '#f0f5ff',
-                      transition: 'all 0.3s',
+                      fontSize: '14px',
+                      padding: '10px 12px',
+                      borderRadius: '10px',
+                      background: index === 0 ? 'linear-gradient(120deg, #fff1f0, #ffccc7)' :
+                                 index === 1 ? 'linear-gradient(120deg, #f6ffed, #d9f7be)' :
+                                 'linear-gradient(120deg, #f0f5ff, #d6e4ff)',
+                      transition: 'all 0.3s cubic-bezier(0.215, 0.61, 0.355, 1)',
                       overflow: 'hidden',
                       textOverflow: 'ellipsis',
-                      whiteSpace: 'nowrap'
+                      whiteSpace: 'nowrap',
+                      boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
                     }}
                     className="top3-item"
                   >
@@ -103,13 +207,13 @@ const StatsPanel = ({ data }) => {
                       display: 'inline-flex',
                       justifyContent: 'center',
                       alignItems: 'center',
-                      width: '20px',
-                      height: '20px',
+                      width: '24px',
+                      height: '24px',
                       borderRadius: '50%',
                       backgroundColor: index === 0 ? '#ff4d4f' : index === 1 ? '#52c41a' : '#1890ff',
                       color: 'white',
-                      fontSize: '12px',
-                      marginRight: '8px',
+                      fontSize: '14px',
+                      marginRight: '10px',
                       fontWeight: 'bold'
                     }}>
                       {index + 1}
@@ -130,51 +234,78 @@ const StatsPanel = ({ data }) => {
         </Col>
       </Row>
 
-      <Row gutter={[16, 16]} style={{ marginTop: 24 }}>
+      <Row gutter={[16, 16]} style={{ marginTop: 32 }}>
         <Col xs={24} sm={8}>
-          <div style={{ marginBottom: 8 }}>
-            <span style={{ fontSize: 14, color: '#8c8c8c' }}>高热度 ({'>'}{Math.round(maxHot * 0.8)})</span>
-            <span style={{ float: 'right', fontSize: 14, color: '#8c8c8c' }}>{highHotCount}条 ({highHotPercent.toFixed(1)}%)</span>
+          <div style={{
+            padding: '20px',
+            background: 'white',
+            borderRadius: '12px',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.05)'
+          }}>
+            <div style={{ marginBottom: 12 }}>
+              <span style={{ fontSize: 15, color: '#8c8c8c', fontWeight: '500' }}>高热度 ({'>'}{Math.round(maxHot * 0.8)})</span>
+              <span style={{ float: 'right', fontSize: 15, color: '#8c8c8c', fontWeight: '500' }}>{highHotCount}条 ({highHotPercent.toFixed(1)}%)</span>
+            </div>
+            <Progress
+              percent={highHotPercent}
+              strokeColor={{
+                '0%': '#ff7875',
+                '100%': '#ff4d4f',
+              }}
+              showInfo={false}
+              size="small"
+              strokeWidth={10}
+              strokeLinecap="round"
+            />
           </div>
-          <Progress
-            percent={highHotPercent}
-            strokeColor={{
-              '0%': '#ff7875',
-              '100%': '#ff4d4f',
-            }}
-            showInfo={false}
-            size="small"
-          />
         </Col>
         <Col xs={24} sm={8}>
-          <div style={{ marginBottom: 8 }}>
-            <span style={{ fontSize: 14, color: '#8c8c8c' }}>中热度 ({Math.round(maxHot * 0.5)}-{Math.round(maxHot * 0.8)})</span>
-            <span style={{ float: 'right', fontSize: 14, color: '#8c8c8c' }}>{midHotCount}条 ({midHotPercent.toFixed(1)}%)</span>
+          <div style={{
+            padding: '20px',
+            background: 'white',
+            borderRadius: '12px',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.05)'
+          }}>
+            <div style={{ marginBottom: 12 }}>
+              <span style={{ fontSize: 15, color: '#8c8c8c', fontWeight: '500' }}>中热度 ({Math.round(maxHot * 0.5)}-{Math.round(maxHot * 0.8)})</span>
+              <span style={{ float: 'right', fontSize: 15, color: '#8c8c8c', fontWeight: '500' }}>{midHotCount}条 ({midHotPercent.toFixed(1)}%)</span>
+            </div>
+            <Progress
+              percent={midHotPercent}
+              strokeColor={{
+                '0%': '#ffc069',
+                '100%': '#faad14',
+              }}
+              showInfo={false}
+              size="small"
+              strokeWidth={10}
+              strokeLinecap="round"
+            />
           </div>
-          <Progress
-            percent={midHotPercent}
-            strokeColor={{
-              '0%': '#ffc069',
-              '100%': '#faad14',
-            }}
-            showInfo={false}
-            size="small"
-          />
         </Col>
         <Col xs={24} sm={8}>
-          <div style={{ marginBottom: 8 }}>
-            <span style={{ fontSize: 14, color: '#8c8c8c' }}>低热度 (≤{Math.round(maxHot * 0.5)})</span>
-            <span style={{ float: 'right', fontSize: 14, color: '#8c8c8c' }}>{lowHotCount}条 ({lowHotPercent.toFixed(1)}%)</span>
+          <div style={{
+            padding: '20px',
+            background: 'white',
+            borderRadius: '12px',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.05)'
+          }}>
+            <div style={{ marginBottom: 12 }}>
+              <span style={{ fontSize: 15, color: '#8c8c8c', fontWeight: '500' }}>低热度 (≤{Math.round(maxHot * 0.5)})</span>
+              <span style={{ float: 'right', fontSize: 15, color: '#8c8c8c', fontWeight: '500' }}>{lowHotCount}条 ({lowHotPercent.toFixed(1)}%)</span>
+            </div>
+            <Progress
+              percent={lowHotPercent}
+              strokeColor={{
+                '0%': '#95de64',
+                '100%': '#52c41a',
+              }}
+              showInfo={false}
+              size="small"
+              strokeWidth={10}
+              strokeLinecap="round"
+            />
           </div>
-          <Progress
-            percent={lowHotPercent}
-            strokeColor={{
-              '0%': '#95de64',
-              '100%': '#52c41a',
-            }}
-            showInfo={false}
-            size="small"
-          />
         </Col>
       </Row>
     </Card>

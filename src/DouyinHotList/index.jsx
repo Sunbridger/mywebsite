@@ -174,6 +174,18 @@ const HotList = () => {
     return platform === 'douyin' ? '🎵' : '🔍';
   };
 
+  // 获取平台颜色
+  const getPlatformColor = () => {
+    return platform === 'douyin' ? '#ff0064' : '#3e7bff';
+  };
+
+  // 获取平台渐变
+  const getPlatformGradient = () => {
+    return platform === 'douyin'
+      ? 'linear-gradient(120deg, #ff0064, #fa7042)'
+      : 'linear-gradient(120deg, #3e7bff, #00d8ff)';
+  };
+
   // 切换高级分析面板
   const toggleAnalysis = () => {
     setShowAnalysis(prev => !prev);
@@ -212,24 +224,28 @@ const HotList = () => {
   }, [platform]);
 
   return (
-    <div className="fade-in">
-      <Card
-        bordered={false}
-        className="main-card"
-      >
-        {/* 标题区域 */}
-        <div className="page-header">
-          <div className="page-title">
-            <span className="platform-icon">{getPlatformIcon()}</span>
-            <Title level={3} style={{ margin: 0, display: 'flex', alignItems: 'center' }}>
-              {getPlatformName()}热榜数据查询
-            </Title>
-            <Tag color={platform === 'douyin' ? 'purple' : 'blue'}>
-              {platform === 'douyin' ? '抖音' : '百度'}
-            </Tag>
-          </div>
+    <div className={`fade-in platform-${platform} xiaohongshu-layout`}>
+      {/* 标题区域 */}
+      <div className="xiaohongshu-header">
+        <div className="page-title">
+          <Title level={3} style={{ margin: 0, display: 'flex', alignItems: 'center' }}>
+            {getPlatformName()}热榜数据查询
+          </Title>
+          <Tag
+            color={platform === 'douyin' ? 'magenta' : 'blue'}
+            style={{
+              padding: '4px 12px',
+              borderRadius: '16px',
+              fontWeight: 'bold',
+              fontSize: '14px',
+              border: 'none',
+              boxShadow: `0 2px 4px ${getPlatformColor()}40`
+            }}
+          >
+            {platform === 'douyin' ? 'Douyin' : 'Baidu'}
+          </Tag>
 
-          <Space>
+          <Space style={{ marginLeft: 'auto' }}>
             <Tooltip title="刷新今日数据">
               <Button
                 type="primary"
@@ -237,6 +253,14 @@ const HotList = () => {
                 onClick={refreshTodayData}
                 loading={loading}
                 className="action-button"
+                style={{
+                  background: getPlatformGradient(),
+                  border: 'none',
+                  borderRadius: '24px',
+                  padding: '0 20px',
+                  height: '40px',
+                  fontWeight: 'bold'
+                }}
               >
                 刷新今日数据
               </Button>
@@ -248,6 +272,16 @@ const HotList = () => {
                 icon={<BarChartOutlined />}
                 onClick={toggleAnalysis}
                 className="action-button"
+                style={{
+                  borderRadius: '24px',
+                  padding: '0 20px',
+                  height: '40px',
+                  fontWeight: 'bold',
+                  ...(showAnalysis && {
+                    background: getPlatformGradient(),
+                    border: 'none'
+                  })
+                }}
               >
                 高级分析
               </Button>
@@ -255,105 +289,198 @@ const HotList = () => {
 
             <Select
               defaultValue="baidu"
-              style={{ width: 120 }}
+              style={{
+                width: 140,
+                borderRadius: '24px',
+                overflow: 'hidden'
+              }}
               onChange={handlePlatformChange}
-              className="platform-selector"
+              className={`platform-selector platform-${platform}`}
+              value={platform}
             >
               <Option value="douyin">
-                <span style={{ marginRight: 4 }}>🎵</span>抖音热榜
+                <span style={{
+                  marginRight: 8,
+                  color: '#ff0064',
+                  fontWeight: 'bold'
+                }}>
+                  🎵
+                </span>
+                抖音热榜
               </Option>
               <Option value="baidu">
-                <span style={{ marginRight: 4 }}>🔍</span>百度热榜
+                <span style={{
+                  marginRight: 8,
+                  color: '#3e7bff',
+                  fontWeight: 'bold'
+                }}>
+                  🔍
+                </span>
+                百度热榜
               </Option>
             </Select>
           </Space>
         </div>
 
         <div className="page-description">
-          <Text type="secondary">
+          <Text type="secondary" style={{ fontSize: '16px' }}>
             选择日期查看对应日期的{getPlatformName()}热榜数据
           </Text>
         </div>
+      </div>
 
-        {/* 控制面板 */}
-        <ControlPanel
-          selectedDate={selectedDate}
-          dateRange={dateRange}
-          loading={loading}
-          onDateChange={handleDateChange}
-          onRangeChange={handleRangeChange}
-          onFetchData={fetchData}
-          onFetchRangeData={fetchRangeData}
-        />
+      <div className="xiaohongshu-content">
+        <div className="xiaohongshu-main">
+          {/* 控制面板 */}
+          <div className="xiaohongshu-card">
+            <ControlPanel
+              selectedDate={selectedDate}
+              dateRange={dateRange}
+              loading={loading}
+              onDateChange={handleDateChange}
+              onRangeChange={handleRangeChange}
+              onFetchData={fetchData}
+              onFetchRangeData={fetchRangeData}
+              platform={platform}
+            />
+          </div>
 
-        {/* 统计信息 */}
-        {data.length > 0 && (
-          <StatsPanel
-            data={data}
-            selectedDate={selectedDate}
-            platform={platform}
-          />
-        )}
+          {/* 统计信息 */}
+          {data.length > 0 && (
+            <div className="xiaohongshu-card">
+              <StatsPanel
+                data={data}
+                selectedDate={selectedDate}
+                platform={platform}
+              />
+            </div>
+          )}
 
-        {/* 错误提示 */}
-        {error && (
-          <Alert
-            message="加载失败"
-            description={error}
-            type="error"
-            action={
-              <Button size="small" icon={<ReloadOutlined />} onClick={() => fetchData()}>
-                重试
-              </Button>
-            }
-            style={{ marginBottom: '16px' }}
-            closable
-          />
-        )}
+          {/* 高级分析面板 */}
+          {showAnalysis && data.length > 0 && (
+            <div className="xiaohongshu-card">
+              <div className="xiaohongshu-card-header">
+                <h3>高级数据分析</h3>
+              </div>
+              <div className="xiaohongshu-card-body">
+                <AdvancedAnalysis
+                  data={data}
+                  loading={loading}
+                  platform={platform}
+                />
+              </div>
+            </div>
+          )}
 
-        <Divider />
+          {/* 数据表格或空状态 */}
+          <div className="xiaohongshu-card">
+            <div className="xiaohongshu-card-header">
+              <h3>热榜数据</h3>
+            </div>
+            <div className="xiaohongshu-card-body">
+              {data.length > 0 ? (
+                <HotListTable
+                  data={data}
+                  loading={loading}
+                  key={tableKey}
+                  platform={platform}
+                />
+              ) : (
+                !loading && (
+                  <Empty
+                    image={Empty.PRESENTED_IMAGE_SIMPLE}
+                    description={
+                      <span style={{ fontSize: '16px' }}>
+                        暂无{getPlatformName()}热榜数据
+                        <br />
+                        请尝试选择其他日期或刷新数据
+                      </span>
+                    }
+                  >
+                    <Button
+                      type="primary"
+                      icon={<ReloadOutlined />}
+                      onClick={() => fetchData()}
+                      size="large"
+                      style={{
+                        borderRadius: '24px',
+                        padding: '0 24px',
+                        height: '40px',
+                        background: getPlatformGradient(),
+                        border: 'none'
+                      }}
+                    >
+                      重新加载
+                    </Button>
+                  </Empty>
+                )
+              )}
+            </div>
+          </div>
+        </div>
 
-        {/* 高级分析面板 */}
-        {showAnalysis && data.length > 0 && (
-          <AdvancedAnalysis
-            data={data}
-            loading={loading}
-          />
-        )}
+        <div className="xiaohongshu-sidebar">
+          {/* 错误提示 */}
+          {error && (
+            <div className="xiaohongshu-card">
+              <div className="xiaohongshu-card-header">
+                <h3>加载失败</h3>
+              </div>
+              <div className="xiaohongshu-card-body">
+                <Alert
+                  message="加载失败"
+                  description={error}
+                  type="error"
+                  action={
+                    <Button size="small" icon={<ReloadOutlined />} onClick={() => fetchData()}>
+                      重试
+                    </Button>
+                  }
+                  closable
+                />
+              </div>
+            </div>
+          )}
 
-        <Divider />
-
-        {/* 数据表格或空状态 */}
-        {data.length > 0 ? (
-          <HotListTable
-            data={data}
-            loading={loading}
-            key={tableKey}
-            platform={platform}
-          />
-        ) : (
-          !loading && (
-            <Empty
-              image={Empty.PRESENTED_IMAGE_SIMPLE}
-              description={
-                <span>
-                  暂无{getPlatformName()}热榜数据
-                  <br />
-                  请尝试选择其他日期或刷新数据
-                </span>
-              }
-            >
-              <Button
-                type="primary"
-                icon={<ReloadOutlined />}
-                onClick={() => fetchData()}
-              >
-                重新加载
-              </Button>
-            </Empty>
-          )
-        )}
-      </Card>
+          {/* 热点笔记 */}
+          {data.length > 0 && (
+            <div className="xiaohongshu-note">
+              <div className="xiaohongshu-note-header">
+                <div
+                  className="xiaohongshu-note-avatar"
+                  style={{
+                    background: getPlatformGradient()
+                  }}
+                >
+                  {getPlatformIcon()}
+                </div>
+                <h3 className="xiaohongshu-note-title">热点话题</h3>
+              </div>
+              <div className="xiaohongshu-note-content">
+                <p>当前平台：{getPlatformName()}</p>
+                <p>数据日期：{selectedDate}</p>
+                <p>热点总数：{data.length} 条</p>
+              </div>
+              <div className="xiaohongshu-note-stats">
+                <div className="xiaohongshu-note-stat">
+                  <FireOutlined />
+                  <span>最高热度</span>
+                  <span style={{ color: getPlatformColor(), fontWeight: 'bold' }}>
+                    {data.length > 0 ? Math.max(...data.map(item => item.hot)).toLocaleString() : 0}
+                  </span>
+                </div>
+                <div className="xiaohongshu-note-stat">
+                  <BarChartOutlined />
+                  <span>平均热度</span>
+                  <span style={{ color: getPlatformColor(), fontWeight: 'bold' }}>
+                    {data.length > 0 ? Math.round(data.reduce((sum, item) => sum + item.hot, 0) / data.length).toLocaleString() : 0}
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
 
       {/* message 占位 */}
       {contextHolder}

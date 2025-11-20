@@ -4,7 +4,19 @@ import { formatHot } from '../utils';
 
 const { Text } = Typography;
 
-const HotListTable = ({ data, loading }) => {
+const HotListTable = ({ data, loading, platform }) => {
+  // 获取平台颜色
+  const getPlatformColor = () => {
+    return platform === 'douyin' ? '#ff0064' : '#3e7bff';
+  };
+
+  // 获取平台渐变
+  const getPlatformGradient = () => {
+    return platform === 'douyin'
+      ? 'linear-gradient(120deg, #ff0064, #fa7042)'
+      : 'linear-gradient(120deg, #3e7bff, #00d8ff)';
+  };
+
   // 根据排名获取不同的图标和颜色
   const getRankIcon = (index) => {
     if (index === 0) return <TrophyOutlined style={{ color: '#ffd700' }} />;
@@ -24,7 +36,6 @@ const HotListTable = ({ data, loading }) => {
       title: '排名',
       key: 'rank',
       width: 80,
-      fixed: 'left',
       render: (_, record, index) => {
         // 优化：优先使用 record.rank（在数据加载处预计算），fallback 使用当前行索引
         const globalIndex = typeof record.rank === 'number' ? record.rank - 1 : index;
@@ -35,7 +46,14 @@ const HotListTable = ({ data, loading }) => {
             <Tag
               className="rank-tag"
               color={getRankColor(globalIndex)}
-              style={{ marginLeft: globalIndex < 3 ? 4 : 0 }}
+              style={{
+                marginLeft: globalIndex < 3 ? 4 : 0,
+                fontSize: globalIndex < 3 ? '14px' : '12px',
+                padding: globalIndex < 3 ? '0 12px' : '0 8px',
+                height: globalIndex < 3 ? '28px' : '24px',
+                display: 'flex',
+                alignItems: 'center'
+              }}
             >
               {globalIndex + 1}
             </Tag>
@@ -56,11 +74,14 @@ const HotListTable = ({ data, loading }) => {
               target="_blank"
               rel="noopener noreferrer"
               className="topic-title"
+              style={{
+                fontSize: '16px'
+              }}
             >
               {title}
             </a>
           </Tooltip>
-          <Text style={{ color: 'rgba(0,0,0,0.65)' }}>{record.desc}</Text>
+          <Text style={{ color: 'rgba(0,0,0,0.65)', fontSize: '14px' }}>{record.desc}</Text>
           <Text type="secondary" style={{ fontSize: '12px' }}>
             数据日期: {record.dataDate} | ID: {record.id}
           </Text>
@@ -74,17 +95,27 @@ const HotListTable = ({ data, loading }) => {
       width: 150,
       sorter: (a, b) => a.hot - b.hot,
       render: (hot) => (
-        <Space>
+        <Space style={{
+          fontSize: '16px',
+          color: getPlatformColor()
+        }}>
           <FireOutlined className="hot-value" />
-          <Text strong className="hot-value">{formatHot(hot)}</Text>
+          <Text strong className="hot-value" style={{
+            fontSize: '18px',
+            background: getPlatformGradient(),
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            fontWeight: 'bold'
+          }}>
+            {formatHot(hot)}
+          </Text>
         </Space>
       ),
     },
     {
       title: '操作',
       key: 'action',
-      width: 120,
-      fixed: 'right',
+      width: 100,
       render: (_, record) => (
         <Tooltip title="查看详情">
           <Button
@@ -94,7 +125,11 @@ const HotListTable = ({ data, loading }) => {
             icon={<EyeOutlined />}
             href={record.mobileUrl}
             target="_blank"
-            size="small"
+            size="middle"
+            style={{
+              background: getPlatformGradient(),
+              border: 'none'
+            }}
           />
         </Tooltip>
       ),
@@ -102,7 +137,7 @@ const HotListTable = ({ data, loading }) => {
   ];
 
   return (
-    <div style={{ position: 'relative', minHeight: '300px' }} className="fade-in">
+    <div style={{ position: 'relative', minHeight: '400px' }} className={`fade-in platform-${platform}`}>
       {loading && (
         <div className="loading-container">
           <Spin size="large" tip="数据加载中..." />
@@ -116,13 +151,14 @@ const HotListTable = ({ data, loading }) => {
           key: item.uniqueKey || index,
         }))}
         pagination={{
-          pageSize: 20,
+          pageSize: 10,
           showSizeChanger: true,
           showQuickJumper: true,
           showTotal: (total, range) => `显示 ${range[0]}-${range[1]} 条，共 ${total} 条热点`,
           position: ['bottomCenter'],
+          size: 'default'
         }}
-        scroll={{ x: 1000 }}
+        scroll={{ x: 'max-content' }}
         loading={loading}
         style={{ opacity: loading ? 0.7 : 1 }}
         size="middle"

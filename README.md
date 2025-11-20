@@ -68,6 +68,96 @@ src/
         └── timeSeriesAnalysis.js # 时间序列分析类
 ```
 
+## 布局层面的技术方案
+
+### 整体布局结构
+
+项目采用 Ant Design 的 [Layout](https://ant.design/components/layout/) 组件构建整体页面布局，包含以下主要部分：
+
+1. **Header（页头）**：
+   - 使用渐变背景色增加视觉吸引力
+   - 包含应用标题 "🔥 热榜数据查询平台"
+   - 固定在页面顶部，提供品牌识别
+
+2. **Content（内容区）**：
+   - 居中布局，最大宽度限制为 1200px
+   - 使用 flex 布局实现响应式设计
+   - 内容区域有适当的内边距，确保内容不会紧贴边缘
+
+3. **Footer（页脚）**：
+   - 包含版权信息
+   - 与页面背景保持一致的配色方案
+
+### 响应式设计
+
+项目通过以下方式实现响应式布局：
+
+1. **CSS 媒体查询**：
+   - 在 [global.css](file:///Users/zcy/Desktop/mycode/mywebsite/src/styles/global.css) 中定义了针对不同屏幕尺寸的样式
+   - 移动端优化，例如在小屏幕下调整内边距和字体大小
+
+2. **Ant Design Grid 系统**：
+   - 在组件中广泛使用 Ant Design 的 [Grid](https://ant.design/components/grid/) 系统
+   - 使用 [Row](file:///Users/zcy/Desktop/mycode/mywebsite/node_modules/@types/react/index.d.ts#L1637) 和 [Col](file:///Users/zcy/Desktop/mycode/mywebsite/node_modules/@types/react/index.d.ts#L1637) 组件实现灵活的栅格布局
+   - 根据不同屏幕尺寸(xs, sm, md, lg)调整列宽和布局
+
+3. **组件自适应**：
+   - 表格组件使用 `scroll` 属性实现横向滚动
+   - 卡片组件使用百分比宽度和弹性布局
+
+### 视觉设计与用户体验
+
+1. **色彩系统**：
+   - 在 [global.css](file:///Users/zcy/Desktop/mycode/mywebsite/src/styles/global.css) 中定义了 CSS 变量，统一管理主题色
+   - 不同状态使用不同颜色标识（如热度、排名等）
+
+2. **动画效果**：
+   - 使用 CSS 动画实现淡入效果（`.fade-in` 类）
+   - 按钮悬停时的变换效果增强交互体验
+   - 加载状态使用半透明遮罩和模糊效果
+
+3. **卡片设计**：
+   - 使用阴影和圆角增强视觉层次感
+   - 渐变卡片组件（GradientCard）提供视觉亮点
+   - 卡片悬停时增强阴影效果
+
+4. **排版系统**：
+   - 使用 Ant Design 的 Typography 组件统一文本样式
+   - 合理的行高和字间距提升可读性
+
+### 组件布局策略
+
+1. **控制面板**（ControlPanel）：
+   - 使用栅格系统实现三列布局
+   - 在小屏幕下自动换行以适应不同设备
+
+2. **统计面板**（StatsPanel）：
+   - 使用四列栅格布局展示关键指标
+   - 在小屏幕设备上调整为堆叠布局
+
+3. **热榜表格**（HotListTable）：
+   - 固定列宽确保重要信息始终可见
+   - 响应式滚动区域适应不同屏幕尺寸
+
+4. **高级分析面板**（AdvancedAnalysis）：
+   - 使用垂直间距分隔不同分析模块
+   - 图表组件自适应容器大小
+
+### 样式管理
+
+1. **全局样式**：
+   - [global.css](file:///Users/zcy/Desktop/mycode/mywebsite/src/styles/global.css) 文件管理全局样式和 CSS 变量
+   - 统一的间距、颜色和字体规范
+
+2. **组件样式**：
+   - 主要依赖 Ant Design 的内置样式
+   - 通过 className 和内联样式进行定制化调整
+
+3. **CSS 最佳实践**：
+   - 使用语义化的类名
+   - 合理使用 CSS 变量提高维护性
+   - 避免过度嵌套的选择器
+
 ## 核心功能模块
 
 ### 1. 主界面组件 (DouyinHotList/index.jsx)
