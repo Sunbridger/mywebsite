@@ -26,7 +26,6 @@ import {
   triggerGitHubAction,
 } from './api';
 import ControlPanel from './components/ControlPanel';
-import StatsPanel from './components/StatsPanel';
 import HotListTable from './components/HotListTable';
 import AdvancedAnalysis from './components/AdvancedAnalysis';
 
@@ -329,15 +328,6 @@ const HotList = () => {
           </div>
         )}
       </div>
-
-      {/* 统计信息 */}
-      {data.length > 0 && (
-        <StatsPanel
-          data={data}
-          selectedDate={selectedDate}
-          platform={platform}
-        />
-      )}
 
       {/* 高级分析面板 */}
       {showAnalysis && data.length > 0 && (
