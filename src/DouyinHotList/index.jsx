@@ -234,7 +234,7 @@ const HotList = () => {
             {getPlatformName()}热榜数据查询
           </Title>
           <Tag color={platform === 'douyin' ? 'magenta' : 'blue'}>
-            {platform === 'douyin' ? 'Douyin' : 'Baidu'}
+            {platform === 'douyin' ? '抖音' : '百度'}
           </Tag>
 
           <Space style={{ marginLeft: 'auto' }}>
