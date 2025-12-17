@@ -205,10 +205,33 @@ const HotList = () => {
 
   return (
     <div className="fade-in single-column-layout">
-      {/* 页面头部 */}
-      <div className="page-header-card">
-        <div className="page-title">
-          <Title level={3} style={{ margin: 0 }}>
+      {/* 错误提示 */}
+      {error && (
+        <Alert
+          message="加载失败"
+          description={error}
+          type="error"
+          action={
+            <Button size="small" icon={<ReloadOutlined />} onClick={() => fetchData()}>
+              重试
+            </Button>
+          }
+          closable
+        />
+      )}
+
+      {/* 合并后的主控制卡片 */}
+      <div className="content-card">
+        {/* 标题行 */}
+        <div style={{
+          padding: '16px 24px',
+          borderBottom: '1px solid #f0f0f0',
+          display: 'flex',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: 12
+        }}>
+          <Title level={4} style={{ margin: 0 }}>
             {getPlatformName()}热榜数据查询
           </Title>
           <Tag color={platform === 'douyin' ? 'magenta' : 'blue'}>
@@ -254,70 +277,58 @@ const HotList = () => {
             </Select>
           </Space>
         </div>
-        <div className="page-description">
-          <Text type="secondary">
-            选择日期查看对应日期的{getPlatformName()}热榜数据
-          </Text>
+
+        {/* 控制面板内容 */}
+        <div style={{ padding: '20px 24px', borderBottom: data.length > 0 ? '1px solid #f0f0f0' : 'none' }}>
+          <ControlPanel
+            selectedDate={selectedDate}
+            dateRange={dateRange}
+            loading={loading}
+            onDateChange={handleDateChange}
+            onRangeChange={handleRangeChange}
+            onFetchData={fetchData}
+            onFetchRangeData={fetchRangeData}
+            platform={platform}
+          />
         </div>
+
+        {/* 热点概览 */}
+        {data.length > 0 && (
+          <div style={{
+            padding: '16px 24px',
+            background: '#fafafa',
+            display: 'flex',
+            flexWrap: 'wrap',
+            gap: 24
+          }}>
+            <div className="overview-item">
+              <FireOutlined style={{ color: '#ff4d4f', fontSize: 16 }} />
+              <span className="overview-label">当前平台</span>
+              <span className="overview-value">{getPlatformName()}</span>
+            </div>
+            <div className="overview-item">
+              <CalendarOutlined style={{ color: '#1677ff', fontSize: 16 }} />
+              <span className="overview-label">数据日期</span>
+              <span className="overview-value">{selectedDate}</span>
+            </div>
+            <div className="overview-item">
+              <BarChartOutlined style={{ color: '#52c41a', fontSize: 16 }} />
+              <span className="overview-label">热点总数</span>
+              <span className="overview-value primary">{data.length} 条</span>
+            </div>
+            <div className="overview-item">
+              <FireOutlined style={{ color: '#ff4d4f', fontSize: 16 }} />
+              <span className="overview-label">最高热度</span>
+              <span className="overview-value primary">{maxHot.toLocaleString()}</span>
+            </div>
+            <div className="overview-item">
+              <BarChartOutlined style={{ color: '#1677ff', fontSize: 16 }} />
+              <span className="overview-label">平均热度</span>
+              <span className="overview-value">{avgHot.toLocaleString()}</span>
+            </div>
+          </div>
+        )}
       </div>
-
-      {/* 错误提示 */}
-      {error && (
-        <Alert
-          message="加载失败"
-          description={error}
-          type="error"
-          action={
-            <Button size="small" icon={<ReloadOutlined />} onClick={() => fetchData()}>
-              重试
-            </Button>
-          }
-          closable
-        />
-      )}
-
-      {/* 控制面板 */}
-      <ControlPanel
-        selectedDate={selectedDate}
-        dateRange={dateRange}
-        loading={loading}
-        onDateChange={handleDateChange}
-        onRangeChange={handleRangeChange}
-        onFetchData={fetchData}
-        onFetchRangeData={fetchRangeData}
-        platform={platform}
-      />
-
-      {/* 热点话题概览（原侧边栏内容，移到上方） */}
-      {data.length > 0 && (
-        <div className="overview-card">
-          <div className="overview-item">
-            <FireOutlined style={{ color: '#ff4d4f', fontSize: 18 }} />
-            <span className="overview-label">当前平台</span>
-            <span className="overview-value">{getPlatformName()}</span>
-          </div>
-          <div className="overview-item">
-            <CalendarOutlined style={{ color: '#1677ff', fontSize: 18 }} />
-            <span className="overview-label">数据日期</span>
-            <span className="overview-value">{selectedDate}</span>
-          </div>
-          <div className="overview-item">
-            <BarChartOutlined style={{ color: '#52c41a', fontSize: 18 }} />
-            <span className="overview-label">热点总数</span>
-            <span className="overview-value primary">{data.length} 条</span>
-          </div>
-          <div className="overview-item">
-            <FireOutlined style={{ color: '#ff4d4f', fontSize: 18 }} />
-            <span className="overview-label">最高热度</span>
-            <span className="overview-value primary">{maxHot.toLocaleString()}</span>
-          </div>
-          <div className="overview-item">
-            <BarChartOutlined style={{ color: '#1677ff', fontSize: 18 }} />
-            <span className="overview-label">平均热度</span>
-            <span className="overview-value">{avgHot.toLocaleString()}</span>
-          </div>
-        </div>
-      )}
 
       {/* 统计信息 */}
       {data.length > 0 && (
